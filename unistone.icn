@@ -1,0 +1,159 @@
+# unistone.icn - Unicon version of LispStone
+# By Gigi Young
+
+record Card(cost, spellp, name, attack, health)
+
+class Hand(cards)
+    method init_player()
+        put(self.cards,
+            Card(1, &null, "Goblin", 1, 1),
+            Card(1, &null, "Pacifist", 0, 2),
+            Card(1, &null, "Slime", 1, 1),
+            Card(2, &null, "Hobgoblin", 2, 1),
+            Card(2, &null, "Cow", 1, 3), 
+            Card(2, "t", "Heal", 0, 2),
+            Card(3, "t", "Anti-heal", 4, 0),
+            Card(3, &null, "Cow Rider", 2, 4),
+            Card(4, &null, "Cow King", 4, 3) 
+           )
+    end
+    method init_ai()
+        put(self.cards,
+            Card(1, &null, "Goblin", 1, 1),
+            Card(1, &null, "Pacifist", 0, 2),
+            Card(1, &null, "Slime", 1, 1),
+            Card(2, &null, "Hobgoblin", 2, 1),
+            Card(2, &null, "Cow", 1, 3), 
+            Card(2, "t", "Heal", 0, 2),
+            Card(3, "t", "Anti-heal", 4, 0),
+            Card(3, &null, "Cow Rider", 2, 4),
+            Card(4, &null, "Cow King", 4, 3) 
+           )
+    end
+initially
+    cards := []
+end
+
+class Minion(name, attack, health)
+    method init(card_info)
+        self.name := card_info.name
+        self.attack := card_info.attack
+        self.health := card_info.health
+    end
+    # Attack/get attacked
+    # Death/deconstructor
+initially
+    name := ""
+    attack := 0
+    health := 0
+end
+
+class Player(health, energy, hand, minions)
+    # Play card
+initially
+    health := 30
+    energy := 0
+    hand := Hand() 
+    minions := []
+end
+
+class Game(player, ai, turn)
+    method init_game()
+        player.hand.init_player()
+        if /player.hand.cards then write("Player hand init error")
+        ai.hand.init_ai()
+        if /ai.hand.cards then write("AI hand init error")
+    end
+    method start_game()
+        player.energy := ai.energy := turn
+
+        ### Print game state
+
+        # Player
+        write("Player health: ", player.health)
+        write("Player energy: ", player.energy)
+        write("Player cards: ")
+        if \player.hand.cards then
+            every write("\t", player.hand.cards[
+                        1 to *player.hand.cards].name)
+        else write("\n")
+        write("Player minions: ")
+        if \player.minions then
+            every write("\t", player.minions[
+                        1 to *player.minions].name)
+        else write("\n")
+
+        # AI
+        write("AI health: ", ai.health)
+        write("AI energy: ", ai.energy)
+        write("AI cards: ")
+        if \ai.hand.cards then
+            every write("\t", ai.hand.cards[
+                        1 to *ai.hand.cards].name)
+        else write("\n")
+        write("AI minions: ")
+        if \ai.minions then
+            every write("\t", ai.minions[
+                        1 to *ai.minions].name)
+        else write("\n")
+
+        ### Player turn
+
+        ### AI turn
+
+        turn +:= 1
+        write(turn)
+    end
+initially
+    player := Player()
+    ai := Player()
+    turn := 1 
+end
+
+procedure main()
+    unistone := Game()
+    unistone.player.hand.init_player()
+    if /unistone.player.hand.cards then write("Player hand init error")
+    unistone.ai.hand.init_ai()
+    if /unistone.ai.hand.cards then write("AI hand init error")
+
+    #while 1 do
+        unistone.player.energy := unistone.ai.energy := unistone.turn
+
+        ### Print game state
+
+        # Player
+        write("Player health: ", unistone.player.health)
+        write("Player energy: ", unistone.player.energy)
+        write("Player cards: ")
+        if \unistone.player.hand.cards then
+            every write("\t", unistone.player.hand.cards[
+                        1 to *unistone.player.hand.cards].name)
+        else write("\n")
+        write("Player minions: ")
+        if \unistone.player.minions then
+            every write("\t", unistone.player.minions[
+                        1 to *unistone.player.minions].name)
+        else write("\n")
+
+        # AI
+        write("AI health: ", unistone.ai.health)
+        write("AI energy: ", unistone.ai.energy)
+        write("AI cards: ")
+        if \unistone.ai.hand.cards then
+            every write("\t", unistone.ai.hand.cards[
+                        1 to *unistone.ai.hand.cards].name)
+        else write("\n")
+        write("AI minions: ")
+        if \unistone.ai.minions then
+            every write("\t", unistone.ai.minions[
+                        1 to *unistone.ai.minions].name)
+        else write("\n")
+
+        ### Player turn
+
+        ### AI turn
+
+        unistone.turn +:= 1
+        write(unistone.turn)
+end
