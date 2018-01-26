@@ -1,0 +1,325 @@
+# game.icn
+# By Gigi Young
+
+#$ifndef GAME_ICN
+#$define GAME_ICN
+
+#$include "player.icn"
+
+###### class Game
+class Game(player, ai, turn)
+    ###################################
+    method init()
+        player.init()
+        ai.init()
+    end
+    
+    ###################################
+    method print_state()
+        write("########Turn ", turn, "########\n")
+        player.print_state()
+        ai.print_state()
+    end
+   
+    ###################################
+    method play_command(command_list)
+        # command format: Play [spell] on [target] 
+        if *command_list = 3 then {
+
+            # check if [spell] is in hand 
+            if player.find_card(command_list[2]) then {
+
+                # if target is self
+                if command_list[3] == ("self"|"Self") then {
+                    # play spell on self 
+                    player.affect_health(
+                        player.play_spell(command_list[2]).spell_effect())
+                    return command_list
+                }
+
+                # else if target is AI
+                else if command_list[3] == ("AI"|"ai") then {
+                    # play spell on AI
+                    ai.affect_health(
+                        player.play_spell(command_list[2]).spell_effect())
+                    return command_list
+                }
+
+                # else if target is an enemy minion
+                else if ai_minion := ai.find_minion(command_list[3]) then {
+                    # play spell on enemy minion
+                    ai_minion.affect_health(
+                        player.play_spell(command_list[2]).spell_effect())
+                    return command_list
+                }
+
+                # else if target is an ally minion
+                else if player_minion := player.find_minion(command_list[3]) 
+                then {
+                    # play spell on own minion
+                    player_minion.affect_health(
+                        player.play_spell(command_list[2]).spell_effect())
+                    return command_list
+                }
+                else write(command_list[3]," is an invalid target\n")
+            }
+            else write(command_list[2]," not found in hand\n")
+        }
+
+        # Play [minion]
+        else if *command_list = 2 then {
+            if player.find_card(command_list[2]).is_minion() then {
+                player.play_minion(command_list[2])
+
+                return command_list
+            } 
+            else write("Minion, ",command_list[2]," not found in hand\n")
+        }
+    end
+    
+    ###################################
+    method attack_command(command_list)
+        # Attack [target] with [minion]
+        if *command_list = 3 then {
+            # if attacking enemy minion
+            if (ai_minion := ai.find_minion(command_list[2])) & 
+               (player_minion := player.find_minion(command_list[3])) then {
+                # Attack ai minion with [minion]
+                ai_minion.affect_health(player_minion.can_attack())
+
+                return command_list 
+            }
+            # if attacking ai
+            else if (command_list[2] == ("AI"|"ai")) & 
+               (player_minion := player.find_minion(command_list[3])) then {
+                # Attack ai with [minion]
+                ai.affect_health(player_minion.can_attack())
+
+                return command_list
+            }
+            # for anyone sadistic enough to do this...
+            else if (command_list[2] == ("Self"|"self")) & 
+                    (player_minion := player.find_minion(command_list[3])) 
+                    then {
+                player.affect_health(player_minion.can_attack())
+
+                return command_list
+            }
+            else if not ai.find_minion(command_list[2]) & 
+                    not player.find_minion(command_list[3]) then {
+                write("Invalid enemy and own minions\n")
+            }
+            else if not ai.find_minion(command_list[2]) then {
+                write("Invalid enemy minion\n")
+            }
+            else if not player.find_minion(command_list[2]) then {
+                write("Invalid own minion\n")
+            }
+        }
+
+    end
+
+    ###################################
+    method execute_command(command_list)
+        case command_list[1] of {
+            # quit game
+            "Quit": return command_list 
+            # end turn 
+            "End": return command_list
+            # play card
+            "Play": {
+                if cmd_list := play_command(command_list) then {
+                    check_minions_alive()
+                    return cmd_list
+                }
+            }
+            # attack minion
+            "Attack": { 
+                if cmd_list := attack_command(command_list) then {
+                    check_minions_alive()
+                    return cmd_list
+                }
+            }
+            # refresh game state
+            "Help": return command_list 
+        }
+    end
+ 
+    ###################################
+    method player_turn()
+        write("--------Player Turn--------\n")
+
+        until (command_list := execute_command(player.turn()))
+        write("\n")
+ 
+        # check if minions are dead
+        check_minions_alive()
+
+        # check if players are dead or end/quit commands 
+        if (not player.is_alive()) & (not ai.is_alive()) then {
+            write("Stalemate")
+            return "Stalemate" 
+        }
+        else if not player.is_alive() then {
+            write("Player died. AI wins!")
+            return "AI" 
+        }
+
+        else if not ai.is_alive() then { 
+            write("AI died. Player wins!")
+            return "Player" 
+        }
+        else { # both player and AI are alive
+            if command_list[1] == "End" then {
+                write("Player turn complete")
+                return "Continue" 
+            }
+            else if command_list[1] == "Quit" then {
+                write("Quitting game...")
+                return "Quit"
+            }
+            else if command_list[1] == "Help" then {
+                player.print_help() 
+            }
+            else {
+                #write("\n")
+                print_state()
+            }
+        }
+    end
+
+    ###################################
+    method ai_play_cards()
+        i := 1
+        # play all playable cards 
+        while i <= *ai.cards do {
+            write("AI trying to play ", ai.cards[i].name)
+            if ai.cards[i].cost <= ai.energy then {
+                # minion
+                if ai.cards[i].is_minion() then {
+                    ai.play_minion(ai.cards[i].name)
+                }
+
+                # spell
+                else {
+                    # if healing spell
+                    if ai.cards[i].is_spell_heal() then {
+                        ai.affect_health(
+                            ai.play_spell(ai.cards[i].name).spell_effect())
+                    }
+                    # if damaging spell attack player
+                    else {
+                        player.affect_health(
+                            ai.play_spell(ai.cards[i].name).spell_effect())
+                         
+                    }
+                }
+            } 
+            # go to next card if current card could not be played
+            else
+                i +:= 1
+        }
+        return
+    end
+
+    ###################################
+    method ai_minion_attacks()
+        every ai_minion := !ai.minions do {
+            if minion_damage := ai_minion.can_attack() then {
+                # if damage
+                if \minion_damage then {
+                    # target enemy's first minions
+                    if 0 < *player.minions then {
+                        write("AI attacks ",player.minions[1].name," with ",
+                              ai_minion.name)
+                        player.minions[1].affect_health(minion_damage)
+                        player.are_minions_alive()
+                    }
+                    else {
+                        # else attack player
+                        player.affect_health(minion_damage)
+                    }
+                }
+            } 
+        }
+        return
+    end
+
+    ###################################
+    method ai_turn()
+        # play cards until no energy
+        write("--------AI Turn--------\n")
+        ai_play_cards()
+        
+        ai_minion_attacks()
+
+        if (not player.is_alive()) & (not ai.is_alive()) then {
+            write("Stalemate")
+            return "Stalemate" 
+        }
+        else if not player.is_alive() then {
+            write("Player died. AI wins!")
+            return "AI" 
+        }
+        else if not ai.is_alive() then { 
+            write("AI died. Player wins!")
+            return "Player" 
+        }
+        else return "Continue"
+        # attacks
+    end
+
+    ###################################
+    method check_end(statement)
+        if statement == "Continue" then {
+            fail 
+        }
+        else if statement == ("Quit"|"Stalemate"|"AI"|"Player") then {
+            return 1 
+        }
+    end
+
+    ###################################
+    method check_minions_alive() 
+        player.are_minions_alive()
+        ai.are_minions_alive()
+    end
+       
+    ###################################
+    method minion_update()
+        player.update_minions()
+        ai.update_minions()
+
+    end
+
+    ###################################
+    method cycle()
+        player.energy := ai.energy := turn
+        minion_update()
+
+        ### Print game state
+        print_state()
+        
+        ### Player turn
+        until player_action := player_turn()
+        if check_end(player_action) then fail
+
+        ### AI turn
+        if check_end(ai_turn()) then fail
+
+        write("Turn ", turn, " Complete\n")
+        return turn +:= 1
+        
+    end
+
+    ###################################
+    method start()
+        while cycle()
+    end
+
+initially
+    player := Player("Player")
+    ai := PlayerAI("AI")
+    turn := 1 
+end
+#$endif # GAME_ICN

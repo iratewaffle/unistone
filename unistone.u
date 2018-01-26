@@ -1,0 +1,81 @@
+version	U12.1.00
+uid	unistone.u1-1516674468-0
+impl	local
+global	1
+	0,000005,main,0
+
+proc main
+	local	0,000000,unistone
+	local	1,000000,Game
+	local	2,000000,write
+	con	0,010000,20,111,156,151,164,151,141,154,151,172,151,156,147,040,147,141,155,145,056,056,056
+	con	1,010000,16,123,164,141,162,164,151,156,147,040,147,141,155,145,056,056,056
+	declend
+	filen	unistone.icn
+	line	6
+	colm	11
+	synt	any
+	mark	L1
+	pnull
+	var	0
+	var	1
+	line	7
+	colm	21
+	synt	any
+	invoke	0
+	line	7
+	colm	14
+	synt	any
+	asgn
+	unmark
+lab L1
+	mark	L2
+	var	2
+	str	0
+	line	8
+	colm	10
+	synt	any
+	invoke	1
+	unmark
+lab L2
+	mark	L3
+	pnull
+	var	0
+	line	9
+	colm	13
+	synt	any
+	field	init
+	line	9
+	colm	18
+	synt	any
+	invoke	0
+	unmark
+lab L3
+	mark	L4
+	var	2
+	str	1
+	line	10
+	colm	10
+	synt	any
+	invoke	1
+	unmark
+lab L4
+	mark	L5
+	pnull
+	var	0
+	line	11
+	colm	13
+	synt	any
+	field	start
+	line	11
+	colm	19
+	synt	any
+	invoke	0
+	unmark
+lab L5
+	pnull
+	line	13
+	colm	1
+	synt	any
+	pfail
+	end

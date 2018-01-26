@@ -1,0 +1,46 @@
+# card.icn
+# By Gigi Young
+
+
+###### record Card
+class Card(cost, spellp, name, attack, health)
+    method is_spell()
+        return \spellp
+    end
+
+    method is_minion()
+        return /spellp
+    end
+
+    
+    method is_spell_damage()
+       if is_spell() then {
+           return 0 < attack
+       }
+    end
+
+    method is_spell_heal()
+       if is_spell() then {
+           return 0 < health 
+       }
+    end
+
+    method spell_effect()
+        return -(0 < is_spell_damage())|(0 < is_spell_heal())
+        #if 0 < is_spell_damage() then {
+       #     write("return damage")
+       #     return 0-damage
+       # }
+       # else if 0 < is_spell_heal() then {
+       #     write("return health")
+       #     return health
+       # }
+    end
+
+initially
+    cost := cost 
+    spellp := spellp
+    name := name 
+    attack := attack 
+    health := health 
+end

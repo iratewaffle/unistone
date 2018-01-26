@@ -1,0 +1,365 @@
+# player.icn
+# By Gigi Young
+
+#$ifndef PLAYER_ICN
+#$define PLAYER_ICN
+
+#$include "minion.icn"
+
+###### class Player
+class Player(name, health, energy, cards, minions)
+    ###################################
+    method init()
+        health := 30
+        init_hand_one()
+    end
+
+    ###################################
+    method print_state()
+        # Status
+        write(name," health: ", health)
+        write(name," energy: ", energy, "\n")
+
+        # Hand
+        write(name," cards: ")
+        write("\t[name cost/health/attack]")
+        every card := !cards do
+            write("\t",card.name," ",card.cost,"/",card.health,"/",card.attack)
+        write("\n")
+
+        # Minions
+        write(name," minions: ")
+        write("\t[name health/attack]")
+        every minion := !minions do {
+            if minion.check_attack() then 
+                write("\t",minion.name," ",minion.health,"/",minion.attack)
+            else
+                write("\t*",minion.name," ",minion.health,"/",minion.attack)
+        }
+        write("\n")
+    end
+
+    ###################################
+    method print_help()
+        write("The format of the the text is as follows:\n")
+        write("    #)What this command does (Syntax of the command to be typed)\n")
+        write("Command syntax:")
+        write("\t( ) - (indicates command syntax structure)")
+        write("\t( | ) - (is a valid command|is another valid command)")
+        write("\t\"name\" - \"this is a card or minion name\"")
+        write("\t\"minion\" - \"this is the name of a minion card\"")
+        write("\t\"spell\" - \"this is a spell name\"")
+        write("\t\"target\" - \"this is a \"name\" (Self|self), or (AI|ai)\"")
+        write("Note: (Self) refers your player - (AI) refers to the enemy\n")
+    end
+
+    ###################################
+    method print_commands()
+        write("1)Quit game    (Quit|quit|Exit|exit)")
+        write("2)End turn     (End|end)")
+        write("3)Play         (Play \"minion\"|Play \"spell\" on \"target\")")
+        write("4)Attack       (Attack \"target\" with \"name\")")
+        write("5)Help         (Help|help)\n")
+    end
+   
+    ###################################
+    method init_hand_one()
+        put(cards,
+            Card(1, &null, "Goblin", 1, 1),
+            Card(1, &null, "Pacifist", 0, 2),
+            Card(1, &null, "Slime", 1, 1),
+            Card(2, &null, "Hobgoblin", 2, 1),
+            Card(2, &null, "Cow", 1, 3), 
+            Card(2, 1, "Heal", 0, 2),
+            Card(3, 1, "Anti-heal", 4, 0),
+            Card(3, &null, "Cow Rider", 2, 4),
+            Card(4, &null, "Cow King", 4, 3) 
+           )
+    end
+
+    ###################################
+    method init_hand_two()
+        put(cards,
+            Card(1, &null, "Goblin", 1, 1),
+            Card(1, &null, "Pacifist", 0, 2),
+            Card(1, &null, "Slime", 1, 1),
+            Card(2, &null, "Hobgoblin", 2, 1),
+            Card(2, &null, "Cow", 1, 3), 
+            Card(2, 1, "Heal", 0, 2),
+            Card(3, 1, "Anti-heal", 4, 0),
+            Card(3, &null, "Cow Rider", 2, 4),
+            Card(4, &null, "Cow King", 4, 3) 
+           )
+    end
+
+    ###################################
+    method affect_health(points)
+        if -1 < (new_health := health + points) then {
+            if 0 < points then
+                write(name," healed for ",points," point(s) of health")
+            else if points = 0 then
+                write(name," took 0 point(s) of damage")
+            else 
+                write(name," took ",-points," point(s) of damage")
+            return health := new_health
+        }
+        else return health := 0
+    end
+            
+
+    ###################################
+    method is_alive()
+        return 0 < health 
+    end
+
+    ###################################
+    method find_minion(minion_name)
+        if \minions then {
+            every i := 1 to *minions do {
+                if minions[i].name == minion_name then {
+                    return minions[i]
+                }
+            }
+        }
+    end
+
+    ###################################
+    method find_card(card_name)
+        if \cards then {
+            every i := 1 to *cards do {
+                if cards[i].name == card_name then {
+                    return cards[i]
+                }
+            }
+        }
+    end
+
+    ###################################
+    method remove_card(card_name)
+        # if card exists, remove from list and return card
+        if \cards then {
+            every i := 1 to *cards do {
+                if cards[i].name == card_name then {
+                    if i_end := (i < *cards) then
+                        cards[i] :=: cards[i_end]
+                    return pull(cards)
+                }
+            }
+        }
+    end
+
+    ###################################
+    method play_spell(name)
+        # check if enough energy
+        if spell := find_card(name) then {
+            if energy >= spell.cost then {
+                write(self.name," played ",spell.name)
+                # apply card cost
+                energy -:= spell.cost
+                # remove and return card 
+                return remove_card(name)
+            }
+            else write("Not enough energy to play ",name,"\n")
+        }
+        else write(name," not found\n")
+    end
+
+    ###################################
+    method play_minion(name)
+        # check if enough energy
+        if minion := find_card(name) then {
+            if energy >= minion.cost then {
+                write(self.name," played ",minion.name)
+                # apply card cost
+                energy -:= minion.cost
+                # add to minion list
+                put(minions, Minion(minion.name,minion.attack,minion.health))
+                # remove and return card 
+                return remove_card(name)
+            }
+            else write("Not enough energy to play ",name,"\n")
+        }
+        else write(name," not found\n")
+    end
+
+    ###################################
+    method remove_minion(minion, index)
+        if -(*minions) <= index <= *minions then {
+            #write("Player.remove_minion()")
+
+            if minions[index].name == minion.name then {
+                if i_end := (index < *minions)  then 
+                    minions[index] :=: minions[i_end]
+               
+                return pull(minions) 
+            }
+        }
+    end
+
+    ###################################
+    method are_minions_alive()
+        if 0 < *minions then {
+            #write("Checking ",name," minions\n")
+
+            i := 1
+            while *minions >= i do {
+                if minions[i].is_alive() then {
+                    #write(minions[i].name," has ",minions[i].health," health")
+                    i +:= 1
+                }
+                # minion is dead, remove
+                else {
+                    if dead_minion := remove_minion(minions[i], i) then 
+                        write(self.name,"'s ",dead_minion.name," died\n")
+                    else 
+                        write("Failed to remove ",dead_minion.name," from play\n")
+                }
+            }
+            write("\n")
+            return 
+        }
+    end
+
+    ###################################
+    method eval_command()
+        input := read()
+        if input == ("Quit"|"quit"|"Exit"|"exit") then {
+            #write("Quit Game") 
+            return ["Quit"] 
+        }
+        else if input == ("End"|"end") then {
+            #write("End Turn") 
+            return ["End"] 
+        }
+        else if i := match("Play "|"play ", input) then {
+            #write("Play...")
+            # 1st case: Play [spell_name] on [target_name]
+            if i_end := find(" on ",input,i,0) then {
+                spell_name := input[i:i_end] 
+                target_name := input[i_end+4:0]
+                return ["Play", spell_name, target_name]
+            }
+            # 2nd case: Play [minion_name] 
+            else {
+                minion_name := input[i:0]
+                return ["Play", minion_name]
+            }
+        }
+        else if i := match("Attack "|"attack ", input) then { 
+            # Attack [target_name] with [minion_name]
+            if i_end := find(" with ",input,i,0) then {
+                target_name := input[i:i_end] 
+                minion_name := input[i_end+6:0]
+                return ["Attack", target_name, minion_name]
+            }
+        }
+        else if input == ("Help"|"help") then {
+            return ["Help"]
+        }
+
+        write("Invalid command: Please try again\n") 
+    end
+ 
+
+    ###################################
+    method turn()
+        print_commands()
+
+        # read/evaluate player command
+        until command := eval_command() 
+        return command
+    end
+
+    ###################################
+    method update_minions()
+        if 0 < *minions then { 
+#            every (!minions).update()
+#            return *[: (!minions).update() :] = *minions
+            k := 0
+            every (!minions).update() do k+:=1
+            return k = *minions
+
+# list comprehension
+#           result := []
+#           every put(result, (!minions).update())
+
+#            every m := !minions do
+#                if m.update() then ... else write(image(m), " update failed")
+#
+#            every i := 1 to *minions do
+#                if rv := minions[i].update() then
+#                       write("minion ", i, " update returned ", image(rv))
+#                else write("minion ", i, " update failed")
+#            return
+        }
+    end
+initially
+    #name := player_name
+    health := &null 
+    energy := &null 
+    cards := [] 
+    minions := []
+end
+
+###### class PlayerAI: Player
+class PlayerAI: Player (name, health, energy, cards, minions)
+
+    ###################################
+    method print_state()
+        # Status
+        write(name, " health: ", health)
+        write(name," energy: ", energy, "\n")
+         
+        $ifdef DEBUG 
+        # Hand
+        write(name," cards: ")
+        write("\t[name cost/health/attac]")
+        every card := !cards do
+            write("\t",card.name," ",card.cost,"/",card.health,"/",card.attack)
+        write("\n")
+        $endif
+
+        # Minions
+        write(name," minions: ")
+        write("\t[name health/attack]")
+        every minion := !minions do {
+            if minion.check_attack() then 
+                write("\t",minion.name," ",minion.health,"/",minion.attack)
+            else
+                write("\t*",minion.name," ",minion.health,"/",minion.attack)
+        }
+        write("\n")
+    end
+
+    ###################################
+    method play_cards()
+        i := 1
+        # play all playable cards 
+        while i >= *cards do {
+            if cards[i].energy <= energy then {
+                # minion
+                if cards[i].is_minion() then {
+                    if play_minion(cards[i]) then
+                        write
+                }
+
+                # spell
+                else {
+                    # if healing spell
+                    if cards[i].is_spell_heal() then {
+                        health +:= play_spell(cards[i]).spell_effect() 
+                    }
+                    # if damaging spell attack player
+                    else {
+                         
+                    }
+                    play_spell(cards[i])
+                }
+            } 
+ 
+
+        }
+    end 
+end
+
+#$endif # PLAYER_ICN

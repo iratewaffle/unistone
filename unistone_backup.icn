@@ -1,0 +1,318 @@
+# unistone.icn - Unicon version of LispStone
+# By Gigi Young
+
+###### record Card
+record Card(cost, spellp, name, attack, health)
+
+
+###### class Hand
+class Hand(cards)
+    method init_hand_one()
+        put(self.cards,
+            Card(1, &null, "Goblin", 1, 1),
+            Card(1, &null, "Pacifist", 0, 2),
+            Card(1, &null, "Slime", 1, 1),
+            Card(2, &null, "Hobgoblin", 2, 1),
+            Card(2, &null, "Cow", 1, 3), 
+            Card(2, 1, "Heal", 0, 2),
+            Card(3, 1, "Anti-heal", 4, 0),
+            Card(3, &null, "Cow Rider", 2, 4),
+            Card(4, &null, "Cow King", 4, 3) 
+           )
+    end
+    method init_hand_two()
+        put(self.cards,
+            Card(1, &null, "Goblin", 1, 1),
+            Card(1, &null, "Pacifist", 0, 2),
+            Card(1, &null, "Slime", 1, 1),
+            Card(2, &null, "Hobgoblin", 2, 1),
+            Card(2, &null, "Cow", 1, 3), 
+            Card(2, 1, "Heal", 0, 2),
+            Card(3, 1, "Anti-heal", 4, 0),
+            Card(3, &null, "Cow Rider", 2, 4),
+            Card(4, &null, "Cow King", 4, 3) 
+           )
+    end
+   
+initially
+    cards := []
+end
+
+###### class Minion
+class Minion(name, attack, health)
+    method init(card_info)
+        self.name := card_info.name
+        self.attack := card_info.attack
+        self.health := card_info.health
+    end
+    method take_damage(damage)
+        #do stuff
+    end
+initially
+    name := ""
+    attack := &null 
+    health := &null 
+end
+
+###### class Player
+class Player(health, energy, hand, minions)
+    method init()
+        health := 30
+        hand.init_hand_one()
+    end
+
+    method print_state()
+        # Status
+        write("Player health: ", health)
+        write("Player energy: ", energy, "\n")
+
+        # Hand
+        write("Player cards: ")
+        write("name cost/health/attack")
+        every card := !hand.cards do
+            write(card.name," ",card.cost,"/",card.health,"/",card.attack)
+        write("\n")
+
+        # Minions
+        write("Player minions: ")
+        write("name health/attack")
+        every minion := !minions do
+            write(minion.name," ",minion.health,"/",minion.attack)
+        write("\n")
+    end
+
+    method eval_command()
+        input := read()
+        if input == ("Quit"|"quit") then {
+            write(1) 
+            return ["Quit"] 
+        }
+        else if input == ("End"|"end") then {
+            write(2) 
+            return ["End"] 
+        }
+        else if i := match("Play ", input) then {
+            write(3)
+            # 1st case: Play [spell_name] on [target_name]
+            if i_end := find(" on ",input,i,0) then {
+                spell_name := input[i:i_end] 
+                target_name := input[i_end+4:0]
+                #write(spell_name)
+                #write(target_name)
+                return ["Play", spell_name, target_name]
+            }
+            # 2nd case: Play [minion_name] 
+            else {
+                minion_name := input[i:0]
+                #write(minion_name)
+                return ["Play", minion_name]
+            }
+        }
+        else if i := match("Attack ", input) then { 
+            write(4)
+            # Attack [target_name] with [minion_name]
+            if i_end := find(" with ",input,i,0) then {
+                target_name := input[i:i_end] 
+                minion_name := input[i_end+6:0]
+                #write(target_name)
+                #write(minion_name)
+                return ["Attack", target_name, minion_name]
+            }
+        }
+        else {
+            write("Please try again") 
+            fail
+        }
+    end
+    
+    method isAlive()
+        if health > 0 then
+            return health 
+    end
+ 
+    method play_card(card_name)
+    end
+   
+    method remove_card(card_name)
+        # if card exists, remove from list and return card
+        if \hand.cards then {
+            every i := 1 to *hand.cards do {
+                if hand.cards[i].name == card_name then {
+                    hand.cards[i] :=: hand.cards[1]
+                    return pop(hand.cards)
+                }
+            }
+        }
+    end
+
+    method attack(target, attacker)
+    end
+ 
+    method turn()
+        write("1)Quit (quits game)")
+        write("2)End (ends turn)")
+        write("3)Play (Play \"name\" [on \"name\"])")
+        write("4)Attack (Attack \"name\" with \"name\")\n")
+
+        # read/evaluate player command
+        until command := eval_command() 
+        return command
+    end
+
+    # Play card
+initially
+    health := &null 
+    energy := &null 
+    hand := Hand() 
+    minions := []
+end
+
+###### class PlayerAI: Player
+class PlayerAI: Player()
+end
+
+###### class Game
+class Game(player, ai, turn)
+    method init_game()
+        player.init()
+        ai.init()
+    end
+    
+    method print_player_state()
+        # Status
+        write("Player health: ", player.health)
+        write("Player energy: ", player.energy, "\n")
+
+        # Hand
+        write("Player cards: ")
+        write("name cost/health/attack")
+        every card := !player.hand.cards do
+            write(card.name," ",card.cost,"/",card.health,"/",card.attack)
+        write("\n")
+
+        # Minions
+        write("Player minions: ")
+        write("name health/attack")
+        every minion := !player.minions do
+            write(minion.name," ",minion.health,"/",minion.attack)
+        write("\n")
+    end
+   
+    method print_ai_state()
+        # Status
+        write("AI health: ", ai.health)
+        write("AI energy: ", ai.energy, "\n")
+
+        # Hand
+        write("AI cards: ")
+        write("name cost/health/attack")
+        every card := !ai.hand.cards do
+            write(card.name," ",card.cost,"/",card.health,"/",card.attack)
+        write("\n")
+
+        # Minions
+        write("AI minions: ")
+        write("name health/attack")
+        every minion := !ai.minions do
+            write(minion.name," ",minion.health,"/",minion.attack)
+        write("\n")
+    end
+
+    method print_state()
+        print_player_state()
+        print_ai_state()
+        #player.print_state()
+        #ai.print_state()
+    end
+   
+    method play_card()
+        #play card
+    end
+ 
+    method player_turn()
+        if command_list := player.turn() then {
+            if command_list[1] == "Quit" then {
+                # quit game
+                write("Quit")
+                return 1
+            }
+            else if command_list[1] == "End" then {
+                write("End")
+                # end turn 
+                return 1
+            }
+            else if command_list[1] == "Play" then {
+                # Play [name] on [target] 
+                write("Play")
+                if *command_list = 3 then {
+                    return 1    
+                }
+                # Play [name]
+                else if *command_list = 2 then {
+                    #write(command_list[2])
+                    write(player.hand.remove_card(command_list[2]).name)
+                    return 1
+                }
+                else fail
+            }
+            else if command_list[1] == "Attack" then {
+                write("Attack")
+                # Attack [target] with [minion]
+                if *command_list = 3 then {
+                    write("Attack")
+                    return 1
+                }
+                else fail
+            }
+        }
+        else fail
+
+        # check for deaths
+        if (not player.isAlive()) & (not ai.isAlive()) then {
+            write("Stalemate")
+            return 1
+        }
+        else if not player.isAlive() then {
+            write("Player died")
+            return 1
+        }
+
+        else if not ai.isAlive() then { 
+            write("AI died")
+            return 1
+        }
+    end
+
+    method ai_turn()
+    end
+
+    method start_game()
+        player.energy := ai.energy := turn
+        write("Turn ", turn, "\n")
+
+        ### Print game state
+        print_state()
+
+        ### Player turn
+        #until player_turn()
+        player_turn()
+
+        ### AI turn
+        #until ai_turn(()
+
+        write("Turn ", turn, " Complete\n")
+        turn +:= 1
+    end
+
+initially
+    player := Player()
+    ai := PlayerAI()
+    turn := 1 
+end
+
+procedure main()
+    unistone := Game()
+    unistone.init_game()
+    unistone.start_game()
+    #unistone.player.print_state()
+end

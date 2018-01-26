@@ -1,0 +1,769 @@
+version	U12.1.00
+uid	minion.u1-1516998933-0
+record	Minion__state,7
+	0,__s
+	1,__m
+	2,name
+	3,attack
+	4,health
+	5,turns_active
+	6,num_attacks
+record	Minion__methods,6
+	0,affect_health
+	1,is_alive
+	2,check_attack
+	3,can_attack
+	4,update
+	5,initially
+impl	local
+global	11
+	0,000005,Minion_affect_health,2
+	1,000005,Minion_is_alive,1
+	2,000005,Minion_check_attack,1
+	3,000005,Minion_can_attack,1
+	4,000005,Minion_update,1
+	5,000005,Minion_initially,1
+	6,000011,Minion__state,7
+	7,000011,Minion__methods,6
+	8,000001,Minion__oprec,0
+	9,000005,Minion,5
+	10,000005,Minioninitialize,0
+
+proc Minion_affect_health
+	local	0,001000,self
+	local	1,001000,points
+	local	2,000000,new_health
+	local	3,000000,write
+	con	0,002000,1,1
+	con	1,002000,1,0
+	con	2,010000,12,040,150,145,141,154,145,144,040,146,157,162,040
+	con	3,010000,20,040,160,157,151,156,164,050,163,051,040,157,146,040,150,145,141,154,164,150,012
+	con	4,010000,27,040,164,157,157,153,040,060,040,160,157,151,156,164,050,163,051,040,157,146,040,144,141,155,141,147,145,012
+	con	5,010000,6,040,164,157,157,153,040
+	con	6,010000,20,040,160,157,151,156,164,050,163,051,040,157,146,040,144,141,155,141,147,145,012
+	declend
+	filen	minion.icn
+	line	11
+	colm	11
+	synt	any
+	mark	L1
+	line	12
+	colm	9
+	synt	ifelse
+	mark	L2
+	pnull
+	pnull
+	int	0
+	line	12
+	colm	12
+	synt	any
+	neg
+	pnull
+	var	2
+	pnull
+	pnull
+	var	0
+	line	12
+	colm	36
+	synt	any
+	field	health
+	var	1
+	line	12
+	colm	43
+	synt	any
+	plus
+	line	12
+	colm	29
+	synt	any
+	asgn
+	line	12
+	colm	15
+	synt	any
+	numlt
+	unmark
+	mark	L4
+	line	13
+	colm	13
+	synt	ifelse
+	mark	L5
+	pnull
+	int	1
+	var	1
+	line	13
+	colm	18
+	synt	any
+	numlt
+	unmark
+	var	3
+	pnull
+	var	0
+	line	14
+	colm	27
+	synt	any
+	field	name
+	str	2
+	var	1
+	str	3
+	line	14
+	colm	22
+	synt	any
+	invoke	4
+	goto	L6
+lab L5
+	line	15
+	colm	18
+	synt	ifelse
+	mark	L7
+	pnull
+	var	1
+	int	1
+	line	15
+	colm	28
+	synt	any
+	numeq
+	unmark
+	var	3
+	pnull
+	var	0
+	line	16
+	colm	27
+	synt	any
+	field	name
+	str	4
+	line	16
+	colm	22
+	synt	any
+	invoke	2
+	goto	L8
+lab L7
+	line	17
+	colm	18
+	synt	if
+	mark0
+	pnull
+	int	1
+	var	1
+	line	17
+	colm	23
+	synt	any
+	numgt
+	unmark
+	var	3
+	pnull
+	var	0
+	line	18
+	colm	27
+	synt	any
+	field	name
+	str	5
+	pnull
+	var	1
+	line	18
+	colm	42
+	synt	any
+	neg
+	str	6
+	line	18
+	colm	22
+	synt	any
+	invoke	4
+	line	17
+	colm	18
+	synt	endif
+lab L8
+	line	15
+	colm	18
+	synt	endifelse
+lab L6
+	line	13
+	colm	13
+	synt	endifelse
+	unmark
+lab L4
+	mark	L9
+	pnull
+	pnull
+	var	0
+	line	19
+	colm	24
+	synt	any
+	field	health
+	var	2
+	line	19
+	colm	31
+	synt	any
+	asgn
+	line	19
+	colm	13
+	synt	any
+	pret
+lab L9
+	synt	any
+	pfail
+	goto	L3
+lab L2
+	mark	L10
+	pnull
+	pnull
+	var	0
+	line	21
+	colm	25
+	synt	any
+	field	health
+	int	1
+	line	21
+	colm	32
+	synt	any
+	asgn
+	line	21
+	colm	14
+	synt	any
+	pret
+lab L10
+	synt	any
+	pfail
+lab L3
+	line	12
+	colm	9
+	synt	endifelse
+	unmark
+lab L1
+	pnull
+	line	22
+	colm	1
+	synt	any
+	pfail
+	end
+proc Minion_is_alive
+	local	0,001000,self
+	con	0,002000,1,0
+	declend
+	line	24
+	colm	11
+	synt	any
+	mark	L1
+	mark	L2
+	pnull
+	int	0
+	pnull
+	var	0
+	line	25
+	colm	24
+	synt	any
+	field	health
+	line	25
+	colm	18
+	synt	any
+	numlt
+	line	25
+	colm	9
+	synt	any
+	pret
+lab L2
+	synt	any
+	pfail
+	unmark
+lab L1
+	pnull
+	line	26
+	colm	1
+	synt	any
+	pfail
+	end
+proc Minion_check_attack
+	local	0,001000,self
+	con	0,002000,1,0
+	declend
+	line	33
+	colm	11
+	synt	any
+	mark	L1
+	mark	L2
+	pnull
+	int	0
+	pnull
+	var	0
+	line	34
+	colm	25
+	synt	any
+	field	num_attacks
+	line	34
+	colm	19
+	synt	any
+	numlt
+	pop
+	pnull
+	int	0
+	pnull
+	var	0
+	line	34
+	colm	46
+	synt	any
+	field	turns_active
+	line	34
+	colm	41
+	synt	any
+	numlt
+	line	34
+	colm	9
+	synt	any
+	pret
+lab L2
+	synt	any
+	pfail
+	unmark
+lab L1
+	pnull
+	line	35
+	colm	1
+	synt	any
+	pfail
+	end
+proc Minion_can_attack
+	local	0,001000,self
+	local	1,000000,write
+	con	0,002000,1,0
+	con	1,002000,1,1
+	con	2,010000,24,040,143,141,156,156,157,164,040,141,164,164,141,143,153,040,164,150,151,163,040,164,165,162,156
+	declend
+	line	40
+	colm	11
+	synt	any
+	mark	L1
+	line	41
+	colm	9
+	synt	ifelse
+	mark	L2
+	pnull
+	int	0
+	pnull
+	var	0
+	line	41
+	colm	21
+	synt	any
+	field	num_attacks
+	line	41
+	colm	15
+	synt	any
+	numlt
+	pop
+	pnull
+	int	0
+	pnull
+	var	0
+	line	41
+	colm	42
+	synt	any
+	field	turns_active
+	line	41
+	colm	37
+	synt	any
+	numlt
+	unmark
+	mark	L4
+	pnull
+	pnull
+	var	0
+	line	42
+	colm	17
+	synt	any
+	field	num_attacks
+	dup
+	int	1
+	line	42
+	colm	29
+	synt	any
+	minus
+	asgn
+	unmark
+lab L4
+	mark	L5
+	pnull
+	pnull
+	var	0
+	line	43
+	colm	25
+	synt	any
+	field	attack
+	line	43
+	colm	20
+	synt	any
+	neg
+	line	43
+	colm	13
+	synt	any
+	pret
+lab L5
+	synt	any
+	pfail
+	goto	L3
+lab L2
+	var	1
+	pnull
+	var	0
+	line	45
+	colm	24
+	synt	any
+	field	name
+	str	2
+	line	45
+	colm	19
+	synt	any
+	invoke	2
+lab L3
+	line	41
+	colm	9
+	synt	endifelse
+	unmark
+lab L1
+	pnull
+	line	46
+	colm	1
+	synt	any
+	pfail
+	end
+proc Minion_update
+	local	0,001000,self
+	con	0,002000,1,1
+	declend
+	line	48
+	colm	11
+	synt	any
+	mark	L1
+	pnull
+	pnull
+	var	0
+	line	51
+	colm	13
+	synt	any
+	field	turns_active
+	dup
+	int	0
+	line	51
+	colm	26
+	synt	any
+	plus
+	asgn
+	unmark
+lab L1
+	mark	L2
+	pnull
+	pnull
+	var	0
+	line	53
+	colm	13
+	synt	any
+	field	num_attacks
+	int	0
+	line	53
+	colm	25
+	synt	any
+	asgn
+	unmark
+lab L2
+	mark	L3
+	mark	L4
+	var	0
+	line	55
+	colm	9
+	synt	any
+	pret
+lab L4
+	synt	any
+	pfail
+	unmark
+lab L3
+	pnull
+	line	56
+	colm	1
+	synt	any
+	pfail
+	end
+proc Minion_initially
+	local	0,001000,self
+	con	0,002000,1,0
+	con	1,002000,1,1
+	declend
+	line	57
+	colm	11
+	synt	any
+	mark	L1
+	pnull
+	pnull
+	var	0
+	line	58
+	colm	9
+	synt	any
+	field	name
+	pnull
+	var	0
+	line	58
+	colm	22
+	synt	any
+	field	name
+	line	58
+	colm	15
+	synt	any
+	asgn
+	unmark
+lab L1
+	mark	L2
+	pnull
+	pnull
+	var	0
+	line	59
+	colm	9
+	synt	any
+	field	attack
+	pnull
+	var	0
+	line	59
+	colm	24
+	synt	any
+	field	attack
+	line	59
+	colm	17
+	synt	any
+	asgn
+	unmark
+lab L2
+	mark	L3
+	pnull
+	pnull
+	var	0
+	line	60
+	colm	9
+	synt	any
+	field	health
+	pnull
+	var	0
+	line	60
+	colm	24
+	synt	any
+	field	health
+	line	60
+	colm	17
+	synt	any
+	asgn
+	unmark
+lab L3
+	mark	L4
+	pnull
+	pnull
+	var	0
+	line	61
+	colm	9
+	synt	any
+	field	turns_active
+	int	0
+	line	61
+	colm	23
+	synt	any
+	asgn
+	unmark
+lab L4
+	mark	L5
+	pnull
+	pnull
+	var	0
+	line	62
+	colm	9
+	synt	any
+	field	num_attacks
+	int	1
+	line	62
+	colm	22
+	synt	any
+	asgn
+	unmark
+lab L5
+	mark	L6
+	mark	L7
+	pnull
+	line	63
+	colm	7
+	synt	any
+	pret
+lab L7
+	synt	any
+	pfail
+	unmark
+lab L6
+	pnull
+	line	64
+	colm	1
+	synt	any
+	pfail
+	end
+proc Minion
+	local	0,001000,name
+	local	1,001000,attack
+	local	2,001000,health
+	local	3,001000,turns_active
+	local	4,001000,num_attacks
+	local	5,000020,self
+	local	6,000020,clone
+	local	7,000000,Minion__oprec
+	local	8,000000,Minioninitialize
+	local	9,000000,Minion__state
+	declend
+	filen	__faux.icn
+	line	5
+	colm	11
+	synt	any
+lab L1
+	init	L3
+	mark	L2
+	line	8
+	colm	3
+	synt	if
+	mark0
+	pnull
+	var	7
+	line	8
+	colm	6
+	synt	any
+	null
+	unmark
+	var	8
+	line	8
+	colm	42
+	synt	any
+	invoke	0
+	line	8
+	colm	3
+	synt	endif
+	unmark
+lab L2
+	einit	L1
+lab L3
+	mark	L4
+	pnull
+	var	5
+	var	9
+	line	10
+	colm	25
+	synt	any
+	keywd	null
+	var	7
+	var	0
+	var	1
+	var	2
+	var	3
+	var	4
+	line	10
+	colm	24
+	synt	any
+	invoke	7
+	line	10
+	colm	8
+	synt	any
+	asgn
+	unmark
+lab L4
+	mark	L5
+	pnull
+	pnull
+	var	5
+	line	11
+	colm	7
+	synt	any
+	field	__s
+	var	5
+	line	11
+	colm	12
+	synt	any
+	asgn
+	unmark
+lab L5
+	mark	L6
+	mark	L7
+	pnull
+	pnull
+	var	5
+	line	12
+	colm	7
+	synt	any
+	field	__m
+	line	12
+	colm	11
+	synt	any
+	field	initially
+	var	5
+	line	12
+	colm	21
+	synt	any
+	invoke	1
+	line	12
+	colm	28
+	synt	any
+	esusp
+	goto	L8
+lab L7
+	line	12
+	colm	30
+	synt	any
+	pfail
+lab L8
+	unmark
+lab L6
+	mark	L9
+	mark	L10
+	var	5
+	line	13
+	colm	3
+	synt	any
+	pret
+lab L10
+	synt	any
+	pfail
+	unmark
+lab L9
+	pnull
+	line	14
+	colm	1
+	synt	any
+	pfail
+	end
+proc Minioninitialize
+	local	0,000000,Minion__oprec
+	local	1,000000,Minion__methods
+	local	2,000000,Minion_affect_health
+	local	3,000000,Minion_is_alive
+	local	4,000000,Minion_check_attack
+	local	5,000000,Minion_can_attack
+	local	6,000000,Minion_update
+	local	7,000000,Minion_initially
+	declend
+	line	16
+	colm	11
+	synt	any
+lab L1
+	init	L3
+	mark	L2
+	pnull
+	var	0
+	var	1
+	var	2
+	var	3
+	var	4
+	var	5
+	var	6
+	var	7
+	line	17
+	colm	43
+	synt	any
+	invoke	6
+	line	17
+	colm	25
+	synt	any
+	asgn
+	unmark
+lab L2
+	einit	L1
+lab L3
+	line	18
+	colm	1
+	synt	any
+	pfail
+	end

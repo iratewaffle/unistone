@@ -1,0 +1,65 @@
+# minion.icn
+# By Gigi Young
+
+#$ifndef MINION_ICN 
+#$define MINION_ICN
+
+#$include "hand.icn"
+
+###### class Minion
+class Minion(name, attack, health, turns_active, num_attacks)
+    method affect_health(points)
+        if -1 < (new_health := health + points) then {
+            if 0 < points then
+                write(name," healed for ",points," point(s) of health\n")
+            else if points = 0 then 
+                write(name," took 0 point(s) of damage\n")
+            else if 0 > points then 
+                write(name," took ",-points," point(s) of damage\n")
+            return health := new_health
+        }
+        else return health := 0
+    end
+    
+    method is_alive()
+        return 0 < health 
+    end
+
+    #method is_active()
+    #    return 0 < turns_active 
+    #end
+   
+    ############################  
+    method check_attack()
+        return (0 < num_attacks) & (0 < turns_active)
+    end
+
+    ############################
+    # if minion can attack, returns its damage
+    ############################  
+    method can_attack()
+        if (0 < num_attacks) & (0 < turns_active) then {
+            num_attacks -:= 1
+            return -attack 
+        }
+        else write(name," cannot attack this turn")
+    end
+
+    method update()
+        #write(name," active for ",(turns_active+1)," turn(s)\n")
+        # update turns active
+        turns_active +:= 1
+        # update number of attacks
+        num_attacks := 1
+
+        return self
+    end
+initially
+    self.name := name 
+    self.attack := attack 
+    self.health := health 
+    self.turns_active := 0 
+    self.num_attacks := 1
+end
+
+#$endif # MINION_ICN
